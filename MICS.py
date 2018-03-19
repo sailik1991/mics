@@ -1,9 +1,9 @@
 from pulp import *
 
-eps = 10e-3
-L = 1000
-MAX_COLOR = 20
-MAX_NODE = 10
+eps = 10e-4
+L = 10e4
+MAX_COLOR = 12
+MAX_NODE = 13
 
 '''
 Input File:
