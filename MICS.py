@@ -1,8 +1,8 @@
 from pulp import *
 
-eps = 10e-4
-MAX_COLOR = 12
-MAX_NODE = 13
+# https://goo.gl/TzaJNN
+L = 0.99
+U = 0 # Problem specific definition
 '''
 Input File:
 No. of nodes (c)
@@ -21,7 +21,7 @@ def solve(filename, c):
 	n = int(f.readline())
 	N = [i for i in range(n)]
 	K = [2**i for i in range(n)]
-	L = sum(K) * 2
+	U = sum(K) * 2
 
 	problem = LpProblem("IdentifyingCodes", LpMinimize)
 	Q = []
@@ -73,8 +73,8 @@ def solve(filename, c):
 	for i in range(len(M)):
 		for j in range(len(M)):
 			if j < i:
-				problem += M[i] - M[j] <= L * y['{}{}'.format(i,j)] - eps, 'Unique_min_{}_{}'.format(i,j)
-				problem += M[i] - M[j] >= eps - L * (1 - y['{}{}'.format(i,j)]), 'Unique_max_{}_{}'.format(i,j)
+				problem += M[i] - M[j] <= U * y['{}{}'.format(i,j)] - L, 'Unique_min_{}_{}'.format(i,j)
+				problem += M[i] - M[j] >= L - U * (1 - y['{}{}'.format(i,j)]), 'Unique_max_{}_{}'.format(i,j)
 
 	problem.solve(pulp.GLPK_CMD());
 	print("Status:", LpStatus[problem.status]);
