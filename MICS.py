@@ -1,10 +1,8 @@
 from pulp import *
 
 eps = 10e-4
-L = 10e4
 MAX_COLOR = 12
 MAX_NODE = 13
-
 '''
 Input File:
 No. of nodes (c)
@@ -17,12 +15,13 @@ Eg.
 0 1 1
 1 1 1
 '''
-def solve(c):
+def solve(filename, c):
 	C = [i for i in range(c)]
-	f = open('input.txt','r')
+	f = open(filename,'r')
 	n = int(f.readline())
 	N = [i for i in range(n)]
 	K = [2**i for i in range(n)]
+	L = sum(K) * 2
 
 	problem = LpProblem("IdentifyingCodes", LpMinimize)
 	Q = []
@@ -65,8 +64,11 @@ def solve(c):
 		adj_i = map(int, f.readline().split(' '))
 		for n_j in range(len(adj_i)):
 			for j in range(c):
-				m_i += adj_i[n_j] * q['{}{}'.format(i,j)] * K[n_j]
+				m_i += adj_i[n_j] * q['{}{}'.format(n_j,j)] * K[n_j]
 		M.append(m_i)
+
+	for i in N:
+		problem += M[i] >= 1, "has_color_{}".format(i)
 
 	for i in range(len(M)):
 		for j in range(len(M)):
@@ -74,7 +76,7 @@ def solve(c):
 				problem += M[i] - M[j] <= L * y['{}{}'.format(i,j)] - eps, 'Unique_min_{}_{}'.format(i,j)
 				problem += M[i] - M[j] >= eps - L * (1 - y['{}{}'.format(i,j)]), 'Unique_max_{}_{}'.format(i,j)
 
-	problem.solve();
+	problem.solve(pulp.GLPK_CMD());
 	print("Status:", LpStatus[problem.status]);
 	for v in problem.variables():
 		print(v.name, "=", v.varValue);
@@ -83,4 +85,4 @@ def solve(c):
 	print(value(problem.objective));
 
 if __name__ == '__main__':
-	solve(int(sys.argv[1]))
+	solve(sys.argv[1], int(sys.argv[2]))
